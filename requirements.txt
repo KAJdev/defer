@@ -1,0 +1,4 @@
+sanic
+aiohttp
+brotli
+asyncio

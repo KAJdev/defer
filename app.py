@@ -1,13 +1,11 @@
 import asyncio
-import json
 from os import getenv
 from sanic import HTTPResponse, Request, Sanic
 import aiohttp
-from aiohttp.web import StreamResponse, Response
 
 app = Sanic(__name__)
 
-async def forward_request(req: Request, path:str):
+async def forward_request(req: Request, path: str):
     forward = req.headers.get("X-Forwarded-To", "").replace("http://", "").replace("https://", "") or None
     callback = req.headers.get("X-Callback-Url")
     echo = req.headers.get("X-Echo")
@@ -27,8 +25,6 @@ async def forward_request(req: Request, path:str):
                 data=req.body,
                 headers=new_headers,
             ) as resp:
-                data = await resp.read()
-                print(f"Got data, {len(data)} bytes")
                 returned_headers = dict(resp.headers)
                 returned_status = resp.status
 
@@ -37,7 +33,7 @@ async def forward_request(req: Request, path:str):
 
                 if callback:
                     print("Callback, sending to", callback)
-                    async for chunk in resp.content.iter_any():
+                    async for chunk in resp.content.iter_chunked(4096):
                         async with aiohttp.ClientSession() as session:
                           callback_resp = await session.request(
                               "POST",
@@ -63,4 +59,3 @@ async def index(req: Request, path: str):
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(getenv("PORT", 8000)), debug=True)
-

@@ -36,7 +36,7 @@ async def forward_request(req: Request, path: str):
                     returned_headers["X-Echo"] = echo
 
                 # remove transfer-encoding header
-                returned_headers.pop("transfer-encoding", None)
+                returned_headers.pop("Transfer-Encoding", None)
 
                 if callback:
                     print("Callback, sending to", callback)

@@ -51,5 +51,5 @@ async def index(req: Request, path: str):
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=getenv("PORT", 8000), debug=True)
+    app.run(host="0.0.0.0", port=int(getenv("PORT", 8000)), debug=True)
 

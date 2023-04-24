@@ -30,7 +30,7 @@ async def index(req: Request, path: str):
             ) as resp:
                 data = await resp.read()
                 print(len(data))
-                returned_headers = resp.headers
+                returned_headers = dict(resp.headers)
                 returned_status = resp.status
 
                 if echo:

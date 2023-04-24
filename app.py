@@ -1,3 +1,4 @@
+import asyncio
 import json
 from os import getenv
 from sanic import HTTPResponse, Request, Sanic
@@ -6,9 +7,7 @@ from aiohttp.web import StreamResponse, Response
 
 app = Sanic(__name__)
 
-
-@app.route("/<path:path>", methods=["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"])
-async def index(req: Request, path: str):
+async def forward_request(req: Request, path:str):
     forward = req.headers.get("X-Forwarded-To", "").replace("http://", "").replace("https://", "") or None
     callback = req.headers.get("X-Callback-Url")
     method = req.headers.get("X-Forwarded-Method") or "POST"
@@ -57,7 +56,14 @@ async def index(req: Request, path: str):
                         return response
                 else:
                     print("No callback, sending back data")
-                    return Response(body=await resp.read(), headers=returned_headers, status=returned_status)
+                    return HTTPResponse(body=await resp.read(), headers=returned_headers, status=returned_status)
+
+@app.route("/<path:path>", methods=["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"])
+async def index(req: Request, path: str):
+    if req.headers.get("X-Callback-Url"):
+      asyncio.create_task(forward_request(req, path))
+      return HTTPResponse(body="CREATED", status=201)
+    return await forward_request(req, path)
 
 
 if __name__ == "__main__":

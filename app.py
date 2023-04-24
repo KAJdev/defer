@@ -22,6 +22,7 @@ async def forward_request(req: Request, path:str):
     
     if forward:
         async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(0)) as session:
+            print("Forwarding request to", forward)
             async with session.request(
                 req.method,
                 f"https://{forward}/{path}",

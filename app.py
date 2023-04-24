@@ -29,7 +29,7 @@ async def forward_request(req: Request, path:str):
                 headers=new_headers,
             ) as resp:
                 data = await resp.read()
-                print(len(data))
+                print(f"Got data, {len(data)} bytes")
                 returned_headers = dict(resp.headers)
                 returned_status = resp.status
 
@@ -37,6 +37,7 @@ async def forward_request(req: Request, path:str):
                     returned_headers["X-Echo"] = echo
 
                 if callback:
+                    print("Callback, sending to", callback)
                     async for chunk in resp.content.iter_any():
                         async with aiohttp.ClientSession() as session:
                           async with session.request(
@@ -46,8 +47,8 @@ async def forward_request(req: Request, path:str):
                               headers=returned_headers,
                           ) as _:
                               pass
-                    
-                    return HTTPResponse(status=returned_status)
+                    print("Done sending data, terminating")
+                    return HTTPResponse(body="OK", status=200)
                 else:
                     print("No callback, sending back data")
                     return HTTPResponse(body=await resp.read(), headers=returned_headers, status=returned_status)

@@ -41,7 +41,7 @@ async def forward_request(req: Request, path: str):
                               data=chunk,
                               headers=returned_headers
                           )
-                          print("Got response", callback_resp.status, callback_resp.headers)
+                    print("Got response", callback_resp.status)
                     print("Done sending data, terminating")
                     return HTTPResponse(body="OK", status=200)
                 else:

@@ -18,6 +18,7 @@ async def index(req: Request, path: str):
     new_headers.pop("X-Callback-Url", None)
     new_headers.pop("X-Forwarded-Method", None)
     new_headers.pop("X-Echo", None)
+    new_headers.pop("Content-Encoding", None)
     new_headers['host'] = forward
     
     if forward:
@@ -35,6 +36,8 @@ async def index(req: Request, path: str):
 
                 if echo:
                     returned_headers["X-Echo"] = echo
+
+                returned_headers.pop("Content-Encoding", None)
 
     if data:
         if callback:

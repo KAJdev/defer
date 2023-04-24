@@ -41,15 +41,14 @@ async def forward_request(req: Request, path:str):
                     print("Callback, sending to", callback)
                     async for chunk in resp.content.iter_any():
                         async with aiohttp.ClientSession() as session:
-                          async with session.request(
+                          callback_resp = await session.request(
                               method,
                               callback,
                               data=chunk,
-                              headers=returned_headers,
-                          ) as _:
-                              pass
+                              headers=returned_headers
+                          )
+                          print("Got response", callback_resp.status, callback_resp.headers)
                     print("Done sending data, terminating")
-                    print("Got response", _.status, _.headers)
                     return HTTPResponse(body="OK", status=200)
                 else:
                     print("No callback, sending back data")

@@ -2,6 +2,7 @@ import json
 from os import getenv
 from sanic import HTTPResponse, Request, Sanic
 import aiohttp
+from aiohttp.web import StreamResponse, Response
 
 app = Sanic(__name__)
 
@@ -38,7 +39,7 @@ async def index(req: Request, path: str):
 
                 if callback:
                     async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(0)) as callback_session:
-                        response = aiohttp.StreamResponse()
+                        response = StreamResponse()
                         response.headers.update(returned_headers)
                         response.set_status(returned_status)
 
@@ -56,7 +57,7 @@ async def index(req: Request, path: str):
                         return response
                 else:
                     print("No callback, sending back data")
-                    return HTTPResponse(body=await resp.read(), headers=returned_headers, status=returned_status)
+                    return Response(body=await resp.read(), headers=returned_headers, status=returned_status)
 
 
 if __name__ == "__main__":

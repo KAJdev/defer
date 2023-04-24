@@ -35,6 +35,9 @@ async def forward_request(req: Request, path: str):
                 if echo:
                     returned_headers["X-Echo"] = echo
 
+                # remove transfer-encoding header
+                returned_headers.pop("transfer-encoding", None)
+
                 if callback:
                     print("Callback, sending to", callback)
                     data = chunked_response(resp)

@@ -1,6 +1,7 @@
 FROM python:3.10
 
 # Install dependencies
+COPY requirements.txt /requirements.txt
 RUN pip install -r requirements.txt
 
 # Copy the current directory contents into the container at /app

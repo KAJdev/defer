@@ -10,13 +10,11 @@ app = Sanic(__name__)
 async def forward_request(req: Request, path:str):
     forward = req.headers.get("X-Forwarded-To", "").replace("http://", "").replace("https://", "") or None
     callback = req.headers.get("X-Callback-Url")
-    method = req.headers.get("X-Forwarded-Method") or "POST"
     echo = req.headers.get("X-Echo")
 
     new_headers = dict(req.headers)
     new_headers.pop("X-Forwarded-To", None)
     new_headers.pop("X-Callback-Url", None)
-    new_headers.pop("X-Forwarded-Method", None)
     new_headers.pop("X-Echo", None)
     new_headers['host'] = forward
     
@@ -42,7 +40,7 @@ async def forward_request(req: Request, path:str):
                     async for chunk in resp.content.iter_any():
                         async with aiohttp.ClientSession() as session:
                           callback_resp = await session.request(
-                              method,
+                              "POST",
                               callback,
                               data=chunk,
                               headers=returned_headers

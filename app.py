@@ -49,6 +49,7 @@ async def forward_request(req: Request, path:str):
                           ) as _:
                               pass
                     print("Done sending data, terminating")
+                    print("Got response", _.status, _.headers)
                     return HTTPResponse(body="OK", status=200)
                 else:
                     print("No callback, sending back data")

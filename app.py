@@ -37,26 +37,21 @@ async def forward_request(req: Request, path:str):
                     returned_headers["X-Echo"] = echo
 
                 if callback:
-                    async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(0)) as callback_session:
-                        response = StreamResponse()
-                        response.headers.update(returned_headers)
-                        response.set_status(returned_status)
-
-                        await response.prepare(req)
-                        async for chunk in resp.content.iter_chunked(4096):
-                            await response.write(chunk)
-                            await callback_session.request(
-                                method,
-                                callback,
-                                data=chunk,
-                                headers=returned_headers
-                            )
-
-                        await response.write_eof()
-                        return response
+                    async for chunk in resp.content.iter_any():
+                        async with aiohttp.ClientSession() as session:
+                          async with session.request(
+                              method,
+                              callback,
+                              data=chunk,
+                              headers=returned_headers,
+                          ) as _:
+                              pass
+                    
+                    return HTTPResponse(status=returned_status)
                 else:
                     print("No callback, sending back data")
                     return HTTPResponse(body=await resp.read(), headers=returned_headers, status=returned_status)
+
 
 @app.route("/<path:path>", methods=["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"])
 async def index(req: Request, path: str):
